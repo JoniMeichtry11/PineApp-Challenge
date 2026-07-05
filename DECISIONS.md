@@ -24,6 +24,7 @@
 | ADR-010 | Librería de UI |
 | ADR-011 | Testing |
 | ADR-012 | Estrategia de branching y commits |
+| ADR-013 | Manejo de credenciales de Firebase |
 
 ---
 
@@ -199,7 +200,28 @@
 
 ---
 
+## ADR-013: Manejo de credenciales de Firebase
+
+- **Contexto:** la consigna exige subir el código completo a un repositorio **público** en GitHub. Hay que decidir cómo manejar el archivo de configuración de Firebase (`apiKey`, `authDomain`, etc.) que usa `@angular/fire`.
+- **Aclaración conceptual previa:** la configuración web de Firebase no es un secreto — se expone inevitablemente en el bundle de JS que corre en el navegador de cualquier usuario. La seguridad real de la app depende de las **Firestore Security Rules** y de **Firebase Auth**, no de ocultar estas claves.
+- **Opciones consideradas:**
+  - A) Commitear `environment.ts` con las claves reales directamente (justificado en que "no son secretas")
+  - B) Usar el mecanismo nativo de Angular (`environment.ts`/`environment.prod.ts` + `fileReplacements`), pero excluir el archivo real del control de versiones vía `.gitignore`, commiteando en su lugar un `environment.example.ts` como plantilla
+  - C) Usar `.env` con un builder custom (ej. `@ngx-env/builder`) para inyectar variables de entorno reales en build time
+- **Decisión:** B) Mecanismo nativo de Angular + archivo real gitignoreado + plantilla de ejemplo commiteada
+- **Justificación:** aunque las claves no son secretas en sentido estricto, sacarlas del repo es buena higiene (no atar el repo público a un proyecto Firebase específico, evitar arrastrar credenciales viejas si el código se reutiliza). La Opción C agrega tooling no estándar de Angular sin beneficio real, dado que el problema que resuelve `.env` en otros contextos (ocultar secretos reales de backend) no aplica acá.
+- **Implementación:**
+  - `src/environments/environment.ts` y `environment.prod.ts` (con claves reales) → agregados a `.gitignore`.
+  - `src/environments/environment.example.ts` → commiteado, con la misma estructura pero valores placeholder (`"TU_API_KEY_ACA"`).
+  - Documentado en el `README.md` (Fase 8): "copiar `environment.example.ts` a `environment.ts` y completar con tus propias credenciales de Firebase antes de correr el proyecto localmente".
+- **Trade-off aceptado:** quien clone el repo no puede correrlo out-of-the-box sin crear su propio proyecto de Firebase; se acepta porque es el comportamiento esperado y documentado.
+- **Cómo defenderlo:** "El `apiKey` de Firebase no es secreto — termina en el bundle del cliente igual. Lo saqué del repo por higiene, no por seguridad; la seguridad real la dan las Security Rules de Firestore y Firebase Auth, que es donde realmente hay que poner el foco."
+
+---
+
 ## Decisiones pendientes / a definir durante el desarrollo
+
+- **Firestore Security Rules:** todavía no está definida la estrategia de reglas de seguridad de Firestore (ej. solo usuarios autenticados pueden escribir, lectura pública o también restringida). Se debe resolver como ADR formal antes o durante la Fase 1, en conjunto con ADR-009 (Autenticación). No dejar las reglas en modo test/abierto al momento de la entrega final.
 
 > Esta sección se va completando a medida que surgen decisiones nuevas durante el loop Plan → Review → Execute con Antigravity. Ninguna decisión nueva se toma sin agregarse acá primero.
 
@@ -213,3 +235,4 @@
 |-------|--------|
 | 2026-07-04 | Creación inicial del documento con ADR-001 a ADR-011 |
 | 2026-07-04 | Agregado ADR-012 (estrategia de branching y commits) |
+| 2026-07-05 | Agregado ADR-013 (manejo de credenciales de Firebase) y nota pendiente sobre Firestore Security Rules |
