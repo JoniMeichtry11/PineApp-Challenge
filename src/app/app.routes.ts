@@ -17,7 +17,7 @@ export const routes: Routes = [
       },
       {
         path: 'customers',
-        loadComponent: () => import('./features/customers/customers-placeholder.component').then(m => m.CustomersPlaceholderComponent)
+        loadComponent: () => import('./features/customers/customer-list/customer-list.component').then(m => m.CustomerListComponent)
       },
       {
         path: 'customers/new',
