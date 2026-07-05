@@ -1,0 +1,75 @@
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fafafa;
+  padding: 16px;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-form-field {
+  margin-bottom: 8px;
+}
+
+.age-display-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  color: #757575;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.age-display-box.has-value {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-color: #c8e6c9;
+}
+
+.age-display-box mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.age-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.age-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.form-actions button {
+  height: 44px;
+  padding: 0 24px;
+}
+
+.spinner-inline {
+  display: inline-block;
+}

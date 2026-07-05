@@ -18,6 +18,10 @@ export const routes: Routes = [
       {
         path: 'customers',
         loadComponent: () => import('./features/customers/customers-placeholder.component').then(m => m.CustomersPlaceholderComponent)
+      },
+      {
+        path: 'customers/new',
+        loadComponent: () => import('./features/customers/customer-form/customer-form.component').then(m => m.CustomerFormComponent)
       }
     ]
   },
