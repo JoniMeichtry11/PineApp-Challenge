@@ -28,6 +28,7 @@
 | ADR-014 | Cálculo de edad al guardar/editar |
 | ADR-015 | Alcance de rutas protegidas |
 | ADR-016 | Firestore Security Rules |
+| ADR-017 | Desviación estándar: Poblacional vs Muestral |
 
 ---
 
@@ -266,9 +267,21 @@
 
 - (vacío — el pendiente de Firestore Security Rules quedó resuelto en ADR-016)
 
-> Esta sección se va completando a medida que surgen decisiones nuevas durante el loop Plan → Review → Execute con Antigravity. Ninguna decisión nueva se toma sin agregarse acá primero.
+---
 
-- (vacío por ahora)
+## ADR-017: Desviación estándar: Poblacional vs Muestral
+
+- **Contexto:** En la Fase 5 se requiere calcular la desviación estándar de las edades de todos los clientes. Existen dos variantes de esta métrica: poblacional ($\sigma$) y muestral ($s$).
+- **Opciones consideradas:**
+  - **Opción A (Poblacional):** Considera a los clientes del sistema como la población entera objeto de estudio.
+    * *Fórmula:* $\sigma = \sqrt{\frac{\sum (x_i - \mu)^2}{N}}$
+    * *Ventaja:* No genera indeterminación (división por cero) cuando hay exactamente 1 cliente en el sistema; simplemente retorna `0.0`.
+  - **Opción B (Muestral):** Considera a los clientes como una muestra de una población general.
+    * *Fórmula:* $s = \sqrt{\frac{\sum (x_i - \mu)^2}{N-1}}$
+    * *Inconveniente:* Para 1 cliente ($N=1$), la división es entre $N-1 = 0$, resultando en una indeterminación matemática que requiere controles y casos de borde adicionales.
+- **Decisión:** Opción A (Poblacional).
+- **Justificación:** La aplicación representa un panel cerrado de gestión donde nos interesa describir la dispersión del conjunto actual de datos cargados en el sistema (análisis descriptivo poblacional) y no inferir la desviación de una población externa. Además, simplifica el código al evitar excepciones para $N=1$.
+- **Cómo defenderlo:** "Utilicé la desviación estándar poblacional en vez de la muestral porque nos interesa describir la dispersión real del conjunto cargado en nuestro sistema. Esto evita además indeterminaciones matemáticas cuando la base de datos tiene un solo cliente."
 
 ---
 
@@ -280,3 +293,4 @@
 | 2026-07-04 | Agregado ADR-012 (estrategia de branching y commits) |
 | 2026-07-05 | Agregado ADR-013 (manejo de credenciales de Firebase) y nota pendiente sobre Firestore Security Rules |
 | 2026-07-05 | Agregado ADR-014 (cálculo de edad), ADR-015 (alcance de rutas protegidas) y ADR-016 (Firestore Security Rules, resuelve el pendiente de ADR-013) |
+| 2026-07-05 | Agregado ADR-017 (Fórmula de desviación estándar poblacional) |

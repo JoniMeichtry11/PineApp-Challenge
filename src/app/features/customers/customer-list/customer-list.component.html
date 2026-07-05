@@ -9,6 +9,45 @@
   </mat-toolbar>
 
   <div class="content-box">
+    <!-- Dashboard de KPIs (Fase 5) -->
+    <div class="kpi-dashboard" *ngIf="kpis$ | async as kpis">
+      <mat-card class="kpi-card">
+        <mat-card-header>
+          <div class="kpi-icon-container users-icon">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="kpi-values">
+            <mat-card-title class="kpi-title">{{ kpis.total }}</mat-card-title>
+            <mat-card-subtitle class="kpi-subtitle">Total Clientes</mat-card-subtitle>
+          </div>
+        </mat-card-header>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-header>
+          <div class="kpi-icon-container average-icon">
+            <mat-icon>functions</mat-icon>
+          </div>
+          <div class="kpi-values">
+            <mat-card-title class="kpi-title">{{ kpis.average | number:'1.1-1' }} años</mat-card-title>
+            <mat-card-subtitle class="kpi-subtitle">Promedio de Edad</mat-card-subtitle>
+          </div>
+        </mat-card-header>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-header>
+          <div class="kpi-icon-container deviation-icon">
+            <mat-icon>analytics</mat-icon>
+          </div>
+          <div class="kpi-values">
+            <mat-card-title class="kpi-title">± {{ kpis.stdDev | number:'1.2-2' }}</mat-card-title>
+            <mat-card-subtitle class="kpi-subtitle">Desviación Estándar</mat-card-subtitle>
+          </div>
+        </mat-card-header>
+      </mat-card>
+    </div>
+
     <!-- Card de Filtros -->
     <mat-card class="filter-card">
       <mat-card-header>
