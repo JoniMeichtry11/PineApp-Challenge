@@ -1,0 +1,109 @@
+<div class="list-container">
+  <!-- Barra de Navegación -->
+  <mat-toolbar color="primary" class="navbar">
+    <span class="navbar-title">InFinanceXP</span>
+    <span class="spacer"></span>
+    <button mat-flat-button color="warn" (click)="logout()" class="logout-btn">
+      <mat-icon>exit_to_app</mat-icon> Cerrar Sesión
+    </button>
+  </mat-toolbar>
+
+  <div class="content-box">
+    <!-- Card de Filtros -->
+    <mat-card class="filter-card">
+      <mat-card-header>
+        <mat-card-title>Filtros y Búsqueda</mat-card-title>
+      </mat-card-header>
+      <mat-card-content [formGroup]="filterForm" class="filter-form-grid">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Buscar cliente</mat-label>
+          <input matInput formControlName="searchTerm" placeholder="Ej. nombre o apellido...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="age-field">
+          <mat-label>Edad Mínima</mat-label>
+          <input matInput type="number" formControlName="minAge" min="0" placeholder="Min">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="age-field">
+          <mat-label>Edad Máxima</mat-label>
+          <input matInput type="number" formControlName="maxAge" min="0" placeholder="Max">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>Ordenar por</mat-label>
+          <mat-select formControlName="sortBy">
+            <mat-option value="nombre">Nombre</mat-option>
+            <mat-option value="apellido">Apellido</mat-option>
+            <mat-option value="edad">Edad</mat-option>
+            <mat-option value="fechaNacimiento">Fecha de Nacimiento</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="dir-field">
+          <mat-label>Dirección</mat-label>
+          <mat-select formControlName="sortDirection">
+            <mat-option value="asc">Ascendente</mat-option>
+            <mat-option value="desc">Descendente</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Fila de Acciones -->
+    <div class="actions-row">
+      <button mat-raised-button color="primary" routerLink="/customers/new" class="new-customer-btn">
+        <mat-icon>add</mat-icon> Nuevo Cliente
+      </button>
+    </div>
+
+    <!-- Contenedor de la Tabla -->
+    <div class="table-container" *ngIf="filteredCustomers$ | async as customers; else loading">
+      <table mat-table [dataSource]="customers" class="mat-elevation-z2" *ngIf="customers.length > 0; else noResults">
+        <!-- Columna Nombre -->
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *mat-header-cellDef> Nombre </th>
+          <td mat-cell *mat-cellDef="let customer"> {{ customer.nombre }} </td>
+        </ng-container>
+
+        <!-- Columna Apellido -->
+        <ng-container matColumnDef="apellido">
+          <th mat-header-cell *mat-header-cellDef> Apellido </th>
+          <td mat-cell *mat-cellDef="let customer"> {{ customer.apellido }} </td>
+        </ng-container>
+
+        <!-- Columna Edad -->
+        <ng-container matColumnDef="edad">
+          <th mat-header-cell *mat-header-cellDef> Edad </th>
+          <td mat-cell *mat-cellDef="let customer"> {{ customer.edad }} años </td>
+        </ng-container>
+
+        <!-- Columna Fecha de Nacimiento -->
+        <ng-container matColumnDef="fechaNacimiento">
+          <th mat-header-cell *mat-header-cellDef> Fecha de Nacimiento </th>
+          <td mat-cell *mat-cellDef="let customer"> {{ customer.fechaNacimiento | fechaPersonalizada }} </td>
+        </ng-container>
+
+        <tr mat-header-row *mat-header-rowDef="displayedColumns"></tr>
+        <tr mat-row *mat-rowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- Mensaje cuando no hay resultados (Requerimiento 3) -->
+      <ng-template #noResults>
+        <div class="no-results-box">
+          <mat-icon class="no-results-icon">info</mat-icon>
+          <h3>No se encontraron clientes</h3>
+          <p>Ajustá los criterios de búsqueda o registrá un nuevo cliente para comenzar.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <ng-template #loading>
+      <div class="loading-box">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Cargando lista de clientes...</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
