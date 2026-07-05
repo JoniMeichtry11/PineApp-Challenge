@@ -3,6 +3,7 @@ import { Firestore, collection, collectionData, doc, addDoc, updateDoc, deleteDo
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Customer } from '../../shared/models/customer.model';
+import { convertToDate, convertToTimestamp } from '../../shared/utils/date-conversion';
 
 /**
  * Servicio encargado de gestionar las operaciones CRUD de clientes en Firestore.
@@ -89,12 +90,8 @@ export class CustomerService {
       nombre: data.nombre || '',
       apellido: data.apellido || '',
       edad: typeof data.edad === 'number' ? data.edad : 0,
-      fechaNacimiento: data.fechaNacimiento instanceof Timestamp 
-        ? data.fechaNacimiento.toDate() 
-        : (data.fechaNacimiento ? new Date(data.fechaNacimiento) : new Date()),
-      createdAt: data.createdAt instanceof Timestamp 
-        ? data.createdAt.toDate() 
-        : (data.createdAt ? new Date(data.createdAt) : undefined),
+      fechaNacimiento: convertToDate(data.fechaNacimiento),
+      createdAt: data.createdAt ? convertToDate(data.createdAt) : undefined,
       createdBy: data.createdBy || undefined
     };
   }
@@ -108,8 +105,8 @@ export class CustomerService {
       nombre: customer.nombre,
       apellido: customer.apellido,
       edad: customer.edad,
-      fechaNacimiento: Timestamp.fromDate(customer.fechaNacimiento),
-      createdAt: customer.createdAt ? Timestamp.fromDate(customer.createdAt) : Timestamp.now(),
+      fechaNacimiento: convertToTimestamp(customer.fechaNacimiento),
+      createdAt: convertToTimestamp(customer.createdAt),
       createdBy: customer.createdBy || ''
     };
   }
