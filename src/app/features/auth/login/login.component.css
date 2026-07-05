@@ -1,0 +1,38 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fafafa;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-form-field {
+  margin-bottom: 8px;
+}
+
+.login-button {
+  margin-top: 16px;
+  height: 48px;
+  font-size: 16px;
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 14px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.spinner-inline {
+  display: inline-block;
+}
