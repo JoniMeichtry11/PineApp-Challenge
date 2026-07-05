@@ -10,9 +10,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { CustomerService } from '../../../core/services/customer.service';
 import { noNumericValidator } from '../../../shared/validators/no-numeric.validator';
+import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 
 /**
  * Componente que maneja el formulario para dar de alta un cliente.
@@ -32,7 +34,9 @@ import { noNumericValidator } from '../../../shared/validators/no-numeric.valida
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    NavbarComponent
   ],
   templateUrl: './customer-form.component.html',
   styleUrls: ['./customer-form.component.css']
@@ -51,7 +55,8 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
   constructor(
     private readonly fb: FormBuilder,
     private readonly customerService: CustomerService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -110,9 +115,11 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
 
     try {
       await this.customerService.addCustomer(newCustomer);
+      this.snackBar.open('Cliente dado de alta correctamente', 'Cerrar', { duration: 3000 });
       this.router.navigate(['/customers']);
     } catch (error) {
       console.error('Error al guardar el cliente:', error);
+      this.snackBar.open('Error al registrar el cliente en Firestore', 'Cerrar', { duration: 5000 });
     } finally {
       this.isLoading = false;
     }

@@ -1,12 +1,6 @@
 <div class="list-container">
-  <!-- Barra de Navegación -->
-  <mat-toolbar color="primary" class="navbar">
-    <span class="navbar-title">InFinanceXP</span>
-    <span class="spacer"></span>
-    <button mat-flat-button color="warn" (click)="logout()" class="logout-btn">
-      <mat-icon>exit_to_app</mat-icon> Cerrar Sesión
-    </button>
-  </mat-toolbar>
+  <!-- Barra de Navegación Unificada (Fase 6) -->
+  <app-navbar></app-navbar>
 
   <div class="content-box">
     <!-- Dashboard de KPIs (Fase 5) -->
@@ -98,44 +92,46 @@
     </div>
 
     <!-- Contenedor de la Tabla -->
-    <div class="table-container" *ngIf="filteredCustomers$ | async as customers; else loading">
-      <table mat-table [dataSource]="customers" class="mat-elevation-z2" *ngIf="customers.length > 0; else noResults">
-        <!-- Columna Nombre -->
-        <ng-container matColumnDef="nombre">
-          <th mat-header-cell *mat-header-cellDef> Nombre </th>
-          <td mat-cell *mat-cellDef="let customer"> {{ customer.nombre }} </td>
-        </ng-container>
+    <div class="table-container" *ngIf="!(isLoading$ | async); else loading">
+      <ng-container *ngIf="filteredCustomers$ | async as customers">
+        <table mat-table [dataSource]="customers" class="mat-elevation-z2" *ngIf="customers.length > 0; else noResults">
+          <!-- Columna Nombre -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *mat-header-cellDef> Nombre </th>
+            <td mat-cell *mat-cellDef="let customer"> {{ customer.nombre }} </td>
+          </ng-container>
 
-        <!-- Columna Apellido -->
-        <ng-container matColumnDef="apellido">
-          <th mat-header-cell *mat-header-cellDef> Apellido </th>
-          <td mat-cell *mat-cellDef="let customer"> {{ customer.apellido }} </td>
-        </ng-container>
+          <!-- Columna Apellido -->
+          <ng-container matColumnDef="apellido">
+            <th mat-header-cell *mat-header-cellDef> Apellido </th>
+            <td mat-cell *mat-cellDef="let customer"> {{ customer.apellido }} </td>
+          </ng-container>
 
-        <!-- Columna Edad -->
-        <ng-container matColumnDef="edad">
-          <th mat-header-cell *mat-header-cellDef> Edad </th>
-          <td mat-cell *mat-cellDef="let customer"> {{ customer.edad }} años </td>
-        </ng-container>
+          <!-- Columna Edad -->
+          <ng-container matColumnDef="edad">
+            <th mat-header-cell *mat-header-cellDef> Edad </th>
+            <td mat-cell *mat-cellDef="let customer"> {{ customer.edad }} años </td>
+          </ng-container>
 
-        <!-- Columna Fecha de Nacimiento -->
-        <ng-container matColumnDef="fechaNacimiento">
-          <th mat-header-cell *mat-header-cellDef> Fecha de Nacimiento </th>
-          <td mat-cell *mat-cellDef="let customer"> {{ customer.fechaNacimiento | fechaPersonalizada }} </td>
-        </ng-container>
+          <!-- Columna Fecha de Nacimiento -->
+          <ng-container matColumnDef="fechaNacimiento">
+            <th mat-header-cell *mat-header-cellDef> Fecha de Nacimiento </th>
+            <td mat-cell *mat-cellDef="let customer"> {{ customer.fechaNacimiento | fechaPersonalizada }} </td>
+          </ng-container>
 
-        <tr mat-header-row *mat-header-rowDef="displayedColumns"></tr>
-        <tr mat-row *mat-rowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+          <tr mat-header-row *mat-header-rowDef="displayedColumns"></tr>
+          <tr mat-row *mat-rowDef="let row; columns: displayedColumns;"></tr>
+        </table>
 
-      <!-- Mensaje cuando no hay resultados (Requerimiento 3) -->
-      <ng-template #noResults>
-        <div class="no-results-box">
-          <mat-icon class="no-results-icon">info</mat-icon>
-          <h3>No se encontraron clientes</h3>
-          <p>Ajustá los criterios de búsqueda o registrá un nuevo cliente para comenzar.</p>
-        </div>
-      </ng-template>
+        <!-- Mensaje cuando no hay resultados (Requerimiento 3) -->
+        <ng-template #noResults>
+          <div class="no-results-box">
+            <mat-icon class="no-results-icon">info</mat-icon>
+            <h3>No se encontraron clientes</h3>
+            <p>Ajustá los criterios de búsqueda o registrá un nuevo cliente para comenzar.</p>
+          </div>
+        </ng-template>
+      </ng-container>
     </div>
 
     <ng-template #loading>

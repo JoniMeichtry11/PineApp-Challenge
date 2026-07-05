@@ -11,13 +11,15 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { combineLatest, Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { combineLatest, Observable, of } from 'rxjs';
+import { map, startWith, catchError } from 'rxjs/operators';
 import { CustomerService } from '../../../core/services/customer.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { StatisticsService } from '../../../core/services/statistics.service';
 import { Customer } from '../../../shared/models/customer.model';
 import { FechaPersonalizadaPipe } from '../../../shared/pipes/fecha-personalizada.pipe';
+import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 /**
  * Componente que muestra el listado de clientes.
@@ -37,9 +39,10 @@ import { FechaPersonalizadaPipe } from '../../../shared/pipes/fecha-personalizad
     MatSelectModule,
     MatTableModule,
     MatIconModule,
-    MatToolbarModule,
     MatProgressSpinnerModule,
-    FechaPersonalizadaPipe
+    MatSnackBarModule,
+    FechaPersonalizadaPipe,
+    NavbarComponent
   ],
   templateUrl: './customer-list.component.html',
   styleUrls: ['./customer-list.component.css']
@@ -48,13 +51,15 @@ export class CustomerListComponent implements OnInit {
   filterForm!: FormGroup;
   filteredCustomers$!: Observable<Customer[]>;
   kpis$!: Observable<{ average: number; stdDev: number; total: number }>;
+  isLoading$!: Observable<boolean>;
   displayedColumns: string[] = ['nombre', 'apellido', 'edad', 'fechaNacimiento'];
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly customerService: CustomerService,
     public readonly authService: AuthService,
-    private readonly statisticsService: StatisticsService
+    private readonly statisticsService: StatisticsService,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -67,11 +72,22 @@ export class CustomerListComponent implements OnInit {
       sortDirection: ['asc'] // Dirección por defecto
     });
 
-    // Flujo reactivo derivado que combina los clientes de Firestore y los cambios del formulario
-    const customers$ = this.customerService.getCustomers();
-    const filters$ = this.filterForm.valueChanges.pipe(
-      startWith(this.filterForm.value)
+    // Flujo reactivo del estado de los clientes (cargando, error, datos)
+    const customersState$ = this.customerService.getCustomers().pipe(
+      map(data => ({ loading: false, error: false, data })),
+      startWith({ loading: true, error: false, data: [] as Customer[] }),
+      catchError(err => {
+        console.error('Error al leer de Firestore:', err);
+        this.snackBar.open('Error al conectar con Firestore. Reintentando...', 'Cerrar', { duration: 5000 });
+        return of({ loading: false, error: true, data: [] as Customer[] });
+      })
     );
+
+    // Derivamos el estado de carga de forma 100% reactiva (Fase 6)
+    this.isLoading$ = customersState$.pipe(map(state => state.loading));
+
+    // Extraemos la colección de datos limpia
+    const customers$ = customersState$.pipe(map(state => state.data));
 
     // Cálculos estadísticos independientes y puramente reactivos (ADR-008, ADR-017)
     this.kpis$ = customers$.pipe(
@@ -81,6 +97,10 @@ export class CustomerListComponent implements OnInit {
         const stdDev = this.statisticsService.calculatePopulationStdDev(ages);
         return { average, stdDev, total: list.length };
       })
+    );
+
+    const filters$ = this.filterForm.valueChanges.pipe(
+      startWith(this.filterForm.value)
     );
 
     this.filteredCustomers$ = combineLatest([customers$, filters$]).pipe(
@@ -128,13 +148,5 @@ export class CustomerListComponent implements OnInit {
         return result;
       })
     );
-  }
-
-  async logout(): Promise<void> {
-    try {
-      await this.authService.logout();
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
   }
 }
