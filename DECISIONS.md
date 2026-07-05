@@ -25,6 +25,9 @@
 | ADR-011 | Testing |
 | ADR-012 | Estrategia de branching y commits |
 | ADR-013 | Manejo de credenciales de Firebase |
+| ADR-014 | Cálculo de edad al guardar/editar |
+| ADR-015 | Alcance de rutas protegidas |
+| ADR-016 | Firestore Security Rules |
 
 ---
 
@@ -219,23 +222,49 @@
 
 ---
 
-## ADR-014: Campo edad y fecha de nacimiento en el modelo y base de datos
+## ADR-014: Cálculo de edad al guardar/editar
 
-- **Contexto:** Se requiere manejar tanto `edad` como `fechaNacimiento` en la base de datos y la aplicación.
+- **Contexto:** la consigna pide `Edad` como campo propio del formulario (además de `Fecha de nacimiento`), pero calcularla manualmente arriesga inconsistencia o error de tipeo.
+- **Decisión:** se guarda `edad` como campo explícito en Firestore (cumple la letra de la consigna), pero se **calcula automáticamente a partir de `fechaNacimiento`** en el momento de alta/edición, en vez de dejar que el usuario la tipee.
+- **Campo en el formulario (Fase 3):** `Edad` se muestra como campo de **solo lectura**, auto-completado al cargar la fecha de nacimiento — no editable manualmente.
+- **Trade-off aceptado (importante, no ocultarlo):** este approach elimina el error de tipeo, pero **no elimina el drift temporal** — si un registro no se edita durante años, la edad guardada queda desactualizada igual que si se hubiera tipeado a mano. Se acepta conscientemente porque resolver el drift completo requeriría recalcular en cada lectura (Cloud Function programada o cálculo en el cliente al listar), que excede el alcance de este challenge.
+- **Cómo defenderlo:** "Elegí calcular la edad al guardar en vez de dejarla puramente derivada, porque la consigna pide el campo explícito en base de datos. Soy consciente de que esto no resuelve el drift si un registro queda años sin tocarse — es un trade-off aceptado, no un descuido."
+
+---
+
+## ADR-015: Alcance de rutas protegidas
+
+- **Contexto:** `SPEC.md` (Fase 2) dejaba abierto si el listado de clientes requiere sesión o es de acceso libre.
 - **Opciones consideradas:**
-  * A) Almacenar `edad` directamente en Firestore y el modelo.
-  * B) Derivar `edad` puramente en el cliente desde `fechaNacimiento`.
-  * C) Guardar ambos en la DB, calculando la edad de manera automática en el submit del cliente basándose en `fechaNacimiento`.
-- **Decisión:** C) Guardar ambos calculando la edad al guardar o editar, siendo el campo `Edad` de solo lectura en el formulario.
-- **Justificación:** Asegura que ambos datos persistan físicamente en la DB conforme a la consigna, previniendo errores de tipeo manual del usuario al automatizar el cálculo del lado del cliente.
-- **Trade-off aceptado:** Esta opción no elimina el drift temporal (la edad guardada en la base de datos quedará fija/desactualizada a menos que el registro se edite en el futuro). Este drift se acepta conscientemente para priorizar la persistencia del campo edad exacto al momento del alta/edición.
-- **Cómo defenderlo:** "Para cumplir con la consigna que pedía persistir ambos campos y evitar errores de ingreso manual del usuario, implementé el auto-cálculo de la edad al guardar. Aceptamos el trade-off de que si el registro no se edita habrá drift temporal, pero garantizamos consistencia en cada transacción de alta y edición."
+  - A) Solo alta/edición requieren login; el listado es público
+  - B) Toda la app (incluido el listado) requiere login
+- **Decisión:** B) Toda la app requiere login
+- **Justificación:** los datos de un cliente (nombre, apellido, fecha de nacimiento) son datos personales; "proteger por defecto" es el criterio más defendible para una app que gestiona ese tipo de información, más allá de que la consigna no lo exija explícitamente para el listado.
+- **Consecuencia práctica a resolver:** quien evalúe el challenge (PinApp/InFinanceXP) necesita poder acceder a la app desplegada para revisarla. Se crea un **usuario de prueba (demo/reviewer)** en Firebase Auth y sus credenciales se documentan en el `README.md` (Fase 8), separado de cualquier dato real.
+- **Trade-off aceptado:** menos "demostrable" a primera vista que tener el listado abierto, pero es el comportamiento correcto para datos personales y se compensa documentando bien el acceso de revisión.
+- **Cómo defenderlo:** "Protegí toda la app porque son datos personales, no solo por seguir la consigna al pie de la letra. Para que se pueda revisar sin fricción, dejé documentadas credenciales de un usuario de prueba en el README."
+
+---
+
+## ADR-016: Firestore Security Rules
+
+*(Resuelve el pendiente marcado en ADR-013)*
+
+- **Contexto:** el `AuthGuard` de Angular controla la navegación dentro de la app, pero no impide que alguien llame a Firestore directamente sin pasar por la UI. La seguridad real depende de las Security Rules configuradas en Firestore, y deben reflejar la misma decisión que ADR-015.
+- **Opciones consideradas:**
+  - A) Modo test (reglas abiertas, con fecha de expiración) — **inaceptable para la entrega final**
+  - B) `allow read, write: if request.auth != null;` — cualquier usuario autenticado puede leer y escribir cualquier registro
+  - C) Igual que B, pero además solo el usuario que creó un registro (`request.auth.uid == resource.data.createdBy`) puede editarlo/borrarlo; lectura abierta a cualquier autenticado
+- **Decisión:** B) para el alcance de este challenge, con C marcada como mejora opcional si el tiempo lo permite
+- **Justificación:** la consigna no plantea un modelo multi-usuario con propiedad de registros (es una app de gestión, no un sistema con roles); exigir autenticación alcanza para cumplir "proteger rutas y acciones sensibles". La Opción C es más completa pero agrega complejidad de reglas que no está pedida — se dokumenta como posible extensión, no como bloqueo de la entrega.
+- **Trade-off aceptado:** cualquier usuario autenticado (incluido el usuario de prueba del ADR-015) puede editar/borrar cualquier cliente, no solo los propios. Aceptable para el alcance del challenge.
+- **Cómo defenderlo:** "Los guards de Angular son solo UX — la seguridad real vive en las Firestore Rules, por eso exigí `request.auth != null` también ahí. Consideré agregar ownership por usuario (`createdBy`), pero la consigna no plantea un modelo multi-usuario, así que lo dejé como posible mejora, no como requisito."
 
 ---
 
 ## Decisiones pendientes / a definir durante el desarrollo
 
-- **Firestore Security Rules:** todavía no está definida la estrategia de reglas de seguridad de Firestore (ej. solo usuarios autenticados pueden escribir, lectura pública o también restringida). Se debe resolver como ADR formal antes o durante la Fase 1, en conjunto con ADR-009 (Autenticación). No dejar las reglas en modo test/abierto al momento de la entrega final.
+- (vacío — el pendiente de Firestore Security Rules quedó resuelto en ADR-016)
 
 > Esta sección se va completando a medida que surgen decisiones nuevas durante el loop Plan → Review → Execute con Antigravity. Ninguna decisión nueva se toma sin agregarse acá primero.
 
@@ -250,5 +279,4 @@
 | 2026-07-04 | Creación inicial del documento con ADR-001 a ADR-011 |
 | 2026-07-04 | Agregado ADR-012 (estrategia de branching y commits) |
 | 2026-07-05 | Agregado ADR-013 (manejo de credenciales de Firebase) y nota pendiente sobre Firestore Security Rules |
-| 2026-07-05 | Agregado ADR-014 (manejo del campo edad y fecha de nacimiento) |
-
+| 2026-07-05 | Agregado ADR-014 (cálculo de edad), ADR-015 (alcance de rutas protegidas) y ADR-016 (Firestore Security Rules, resuelve el pendiente de ADR-013) |

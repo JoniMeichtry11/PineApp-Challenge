@@ -221,7 +221,9 @@ interface Customer {
 **Objetivo:** entregables finales según lo pedido en la consigna.
 
 **Tareas:**
-- Escribir `README.md` con: descripción del proyecto, cómo correrlo localmente, decisiones técnicas (versión resumida de `DECISIONS.md`), y capturas de pantalla si da el tiempo.
+- Escribir `README.md` con: descripción del proyecto, cómo correrlo localmente (incluyendo copiar `environment.example.ts` a `environment.ts`, ADR-013), decisiones técnicas (versión resumida de `DECISIONS.md`), y capturas de pantalla si da el tiempo.
+- Documentar en el `README.md` las credenciales del usuario de prueba (demo/reviewer) creado en Firebase Auth, para que el evaluador pueda acceder a las rutas protegidas (ADR-015).
+- Configurar y desplegar las Firestore Security Rules definitivas (ADR-016) — verificar que NO queden en modo test antes de la entrega.
 - Verificar JSDoc en servicios y pipes (requisito explícito de la consigna).
 - `ng build --configuration production` y deploy a Firebase Hosting (`firebase deploy`).
 - Subir el repositorio a GitHub como público.
