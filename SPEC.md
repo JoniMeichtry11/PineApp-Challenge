@@ -64,7 +64,7 @@ interface Customer {
 **Tareas:**
 - Generar proyecto con Angular CLI 15, standalone (`ng new --standalone`).
 - Configurar proyecto en Firebase Console (Firestore, Auth, Hosting).
-- Instalar `@angular/fire` y configurar `environment.ts` / `environment.prod.ts` con las credenciales (nunca hardcodeadas en el código de features).
+- Instalar `@angular/fire` y configurar `environment.ts` / `environment.prod.ts` con las credenciales reales de Firebase (nunca hardcodeadas dentro del código de features). Ambos archivos van a `.gitignore`; se commitea en su lugar `environment.example.ts` con placeholders, según ADR-013.
 - Instalar y configurar Angular Material (tema, `BrowserAnimationsModule`).
 - Crear estructura de carpetas según ADR-004 (`core/`, `shared/`, `features/`).
 - Inicializar repositorio Git y primer commit.
