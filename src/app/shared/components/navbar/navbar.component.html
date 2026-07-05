@@ -1,0 +1,10 @@
+<mat-toolbar color="primary" class="navbar">
+  <button mat-icon-button *ngIf="showBackButton" routerLink="/customers" class="back-btn" aria-label="Volver al listado">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span class="navbar-title">InFinanceXP</span>
+  <span class="spacer"></span>
+  <button mat-flat-button color="warn" (click)="logout()" class="logout-btn">
+    <mat-icon>exit_to_app</mat-icon> Cerrar Sesión
+  </button>
+</mat-toolbar>
