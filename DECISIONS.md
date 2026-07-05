@@ -219,6 +219,20 @@
 
 ---
 
+## ADR-014: Campo edad y fecha de nacimiento en el modelo y base de datos
+
+- **Contexto:** Se requiere manejar tanto `edad` como `fechaNacimiento` en la base de datos y la aplicación.
+- **Opciones consideradas:**
+  * A) Almacenar `edad` directamente en Firestore y el modelo.
+  * B) Derivar `edad` puramente en el cliente desde `fechaNacimiento`.
+  * C) Guardar ambos en la DB, calculando la edad de manera automática en el submit del cliente basándose en `fechaNacimiento`.
+- **Decisión:** C) Guardar ambos calculando la edad al guardar o editar, siendo el campo `Edad` de solo lectura en el formulario.
+- **Justificación:** Asegura que ambos datos persistan físicamente en la DB conforme a la consigna, previniendo errores de tipeo manual del usuario al automatizar el cálculo del lado del cliente.
+- **Trade-off aceptado:** Esta opción no elimina el drift temporal (la edad guardada en la base de datos quedará fija/desactualizada a menos que el registro se edite en el futuro). Este drift se acepta conscientemente para priorizar la persistencia del campo edad exacto al momento del alta/edición.
+- **Cómo defenderlo:** "Para cumplir con la consigna que pedía persistir ambos campos y evitar errores de ingreso manual del usuario, implementé el auto-cálculo de la edad al guardar. Aceptamos el trade-off de que si el registro no se edita habrá drift temporal, pero garantizamos consistencia en cada transacción de alta y edición."
+
+---
+
 ## Decisiones pendientes / a definir durante el desarrollo
 
 - **Firestore Security Rules:** todavía no está definida la estrategia de reglas de seguridad de Firestore (ej. solo usuarios autenticados pueden escribir, lectura pública o también restringida). Se debe resolver como ADR formal antes o durante la Fase 1, en conjunto con ADR-009 (Autenticación). No dejar las reglas en modo test/abierto al momento de la entrega final.
@@ -236,3 +250,5 @@
 | 2026-07-04 | Creación inicial del documento con ADR-001 a ADR-011 |
 | 2026-07-04 | Agregado ADR-012 (estrategia de branching y commits) |
 | 2026-07-05 | Agregado ADR-013 (manejo de credenciales de Firebase) y nota pendiente sobre Firestore Security Rules |
+| 2026-07-05 | Agregado ADR-014 (manejo del campo edad y fecha de nacimiento) |
+
