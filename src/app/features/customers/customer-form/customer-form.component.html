@@ -1,0 +1,73 @@
+<div class="form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Alta de Cliente</mat-card-title>
+      <mat-card-subtitle>Ingresá los datos del nuevo cliente</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" placeholder="Ej. Juan">
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="customerForm.get('nombre')?.hasError('required')">
+            El nombre es obligatorio.
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('nombre')?.hasError('hasNumeric')">
+            El nombre no puede contener números.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Apellido</mat-label>
+          <input matInput formControlName="apellido" placeholder="Ej. Pérez">
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="customerForm.get('apellido')?.hasError('required')">
+            El apellido es obligatorio.
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('apellido')?.hasError('hasNumeric')">
+            El apellido no puede contener números.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Fecha de Nacimiento</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="fechaNacimiento"
+            [min]="minDate"
+            [max]="maxDate"
+            placeholder="DD/MM/AAAA">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="customerForm.get('fechaNacimiento')?.hasError('required')">
+            La fecha de nacimiento es obligatoria.
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Visualización de la edad autocalculada (ADR-014) -->
+        <div class="age-display-box" [class.has-value]="calculatedAge !== null">
+          <mat-icon>date_range</mat-icon>
+          <span class="age-label">Edad calculada automáticamente:</span>
+          <span class="age-value">{{ calculatedAge !== null ? calculatedAge + ' años' : 'Esperando fecha...' }}</span>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" routerLink="/customers" [disabled]="isLoading">
+            Cancelar
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="customerForm.invalid || calculatedAge === null || isLoading">
+            <mat-spinner *ngIf="isLoading" diameter="20" class="spinner-inline"></mat-spinner>
+            <span *ngIf="!isLoading">Guardar Cliente</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
