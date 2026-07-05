@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 import { CustomerService } from '../../../core/services/customer.service';
 import { noNumericValidator } from '../../../shared/validators/no-numeric.validator';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { calculateAge } from '../../../shared/utils/age-calculation';
 
 /**
  * Componente que maneja el formulario para dar de alta un cliente.
@@ -77,24 +78,14 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Calcula la edad precisa considerando año, mes y día (requisito de verificación).
+   * Delega el cálculo preciso de edad (por mes y día) a la función pura `calculateAge` en shared.
    */
   private updateCalculatedAge(birthDate: Date | null): void {
     if (!birthDate || isNaN(birthDate.getTime())) {
       this.calculatedAge = null;
       return;
     }
-
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    // Si no ha cumplido años en el año actual todavía, restamos 1
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    this.calculatedAge = age >= 0 ? age : 0;
+    this.calculatedAge = calculateAge(birthDate);
   }
 
   async onSubmit(): Promise<void> {
