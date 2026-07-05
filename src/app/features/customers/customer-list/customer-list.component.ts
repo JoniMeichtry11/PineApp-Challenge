@@ -15,6 +15,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CustomerService } from '../../../core/services/customer.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { StatisticsService } from '../../../core/services/statistics.service';
 import { Customer } from '../../../shared/models/customer.model';
 import { FechaPersonalizadaPipe } from '../../../shared/pipes/fecha-personalizada.pipe';
 
@@ -46,12 +47,14 @@ import { FechaPersonalizadaPipe } from '../../../shared/pipes/fecha-personalizad
 export class CustomerListComponent implements OnInit {
   filterForm!: FormGroup;
   filteredCustomers$!: Observable<Customer[]>;
+  kpis$!: Observable<{ average: number; stdDev: number; total: number }>;
   displayedColumns: string[] = ['nombre', 'apellido', 'edad', 'fechaNacimiento'];
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly customerService: CustomerService,
-    public readonly authService: AuthService
+    public readonly authService: AuthService,
+    private readonly statisticsService: StatisticsService
   ) {}
 
   ngOnInit(): void {
@@ -68,6 +71,16 @@ export class CustomerListComponent implements OnInit {
     const customers$ = this.customerService.getCustomers();
     const filters$ = this.filterForm.valueChanges.pipe(
       startWith(this.filterForm.value)
+    );
+
+    // Cálculos estadísticos independientes y puramente reactivos (ADR-008, ADR-017)
+    this.kpis$ = customers$.pipe(
+      map(list => {
+        const ages = list.map(c => c.edad);
+        const average = this.statisticsService.calculateAverage(ages);
+        const stdDev = this.statisticsService.calculatePopulationStdDev(ages);
+        return { average, stdDev, total: list.length };
+      })
     );
 
     this.filteredCustomers$ = combineLatest([customers$, filters$]).pipe(
