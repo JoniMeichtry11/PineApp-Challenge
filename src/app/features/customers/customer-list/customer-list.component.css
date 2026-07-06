@@ -33,27 +33,33 @@
 
 .kpi-dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
 .kpi-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Arreglo del margen inferior roto: agregamos padding al contenedor de la tarjeta */
+  padding: 8px 0;
 }
 
 .kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: #e2e8f0;
 }
 
 .kpi-card mat-card-header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
+  padding: 16px 24px;
 }
 
 /* Sobreescribimos el layout interno de mat-card-header que Angular Material genera */
@@ -67,33 +73,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .kpi-icon-container mat-icon {
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
 }
 
 .users-icon {
-  background-color: #e3f2fd;
-  color: #1e88e5;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
 }
 
 .average-icon {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
 }
 
 .deviation-icon {
-  background-color: #fff3e0;
-  color: #f57c00;
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  color: white;
 }
 
 .kpi-values {
@@ -102,16 +109,21 @@
 }
 
 .kpi-title {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a202c;
   margin: 0 !important;
   line-height: 1.2;
+  letter-spacing: -0.5px;
 }
 
 .kpi-subtitle {
-  font-size: 13px;
-  color: #757575;
-  margin: 0 !important;
+  font-size: 14px;
+  font-weight: 500;
+  color: #718096;
+  margin: 4px 0 0 0 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .filter-card {
