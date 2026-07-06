@@ -44,7 +44,16 @@
             placeholder="DD/MM/AAAA">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
-          <mat-error *ngIf="customerForm.get('fechaNacimiento')?.hasError('required')">
+          <mat-error *ngIf="customerForm.get('fechaNacimiento')?.hasError('matDatepickerParse')">
+            La fecha ingresada no es válida (ej: DD/MM/AAAA).
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('fechaNacimiento')?.hasError('matDatepickerMin')">
+            La fecha no puede superar los 120 años de antigüedad.
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('fechaNacimiento')?.hasError('matDatepickerMax')">
+            La fecha de nacimiento no puede ser futura.
+          </mat-error>
+          <mat-error *ngIf="customerForm.get('fechaNacimiento')?.hasError('required') && !customerForm.get('fechaNacimiento')?.hasError('matDatepickerParse')">
             La fecha de nacimiento es obligatoria.
           </mat-error>
         </mat-form-field>
