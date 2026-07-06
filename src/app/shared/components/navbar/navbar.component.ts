@@ -7,8 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
 
 /**
- * Componente de navegación compartido para la aplicación.
- * Centraliza el título, navegación de retorno y cierre de sesión (ADR-010).
+ * Componente de navegación compartido (Navbar).
+ * Se extrajo como componente independiente para centralizar la navegación y mantener un
+ * esqueleto visual consistente a través de diferentes vistas (listado y formulario),
+ * evitando duplicar código HTML en múltiples templates (DRY).
  */
 @Component({
   selector: 'app-navbar',
@@ -31,14 +33,17 @@ export class NavbarComponent {
   ) {}
 
   /**
-   * Determina si se debe mostrar el botón para volver al listado.
+   * Evalúa dinámicamente si se debe mostrar el botón "Atrás" basándose en la ruta activa.
+   * Evita inyectar inputs adicionales al componente, dejando que la navbar sea 100%
+   * consciente del estado de enrutamiento por sí sola.
    */
   get showBackButton(): boolean {
     return this.router.url.includes('/new');
   }
 
   /**
-   * Cierra la sesión activa y redirige al login.
+   * Cierra la sesión activa a través de AuthService y purga el token, previniendo
+   * navegaciones accidentales hacia atrás con sesiones inválidas.
    */
   async logout(): Promise<void> {
     try {

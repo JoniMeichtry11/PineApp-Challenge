@@ -19,7 +19,9 @@ import { calculateAge } from '../../../shared/utils/age-calculation';
 
 /**
  * Componente que maneja el formulario para dar de alta un cliente.
- * El campo edad es de solo lectura y calculado en base a la fecha de nacimiento (ADR-014).
+ * El requerimiento exige guardar la edad exacta junto a la fecha de nacimiento. En lugar
+ * de pedirle la edad al usuario (lo que genera redundancia y posibles inconsistencias),
+ * este componente captura solo la fecha y delega el cálculo exacto a una utilidad pura.
  */
 @Component({
   selector: 'app-customer-form',
@@ -67,7 +69,11 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
       fechaNacimiento: [null as Date | null, [Validators.required]]
     });
 
-    // Escuchamos los cambios en la fecha de nacimiento para calcular la edad reactivamente (ADR-014)
+    /** 
+     * Suscripción reactiva para re-calcular la edad en tiempo real mientras el usuario tipea o
+     * usa el calendario. Esto evita tener lógica de cálculo directamente embebida en el template
+     * y garantiza que el valor interno de la edad esté siempre sincronizado con el control de fecha.
+     */
     this.dateSubscription = this.customerForm.get('fechaNacimiento')?.valueChanges.subscribe((date: Date | null) => {
       this.updateCalculatedAge(date);
     });
@@ -88,6 +94,13 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
     this.calculatedAge = calculateAge(birthDate);
   }
 
+  /**
+   * Ejecuta el alta del cliente en Firestore interceptando el submit del formulario.
+   * La edad, al no ser un form control directo (para evitar manipulaciones del usuario),
+   * se inyecta manualmente en el payload final justo antes de guardar (ADR-014).
+   * 
+   * @returns Promise que se resuelve al terminar la escritura en Firestore o rechaza en error.
+   */
   async onSubmit(): Promise<void> {
     if (this.customerForm.invalid || this.calculatedAge === null) {
       return;

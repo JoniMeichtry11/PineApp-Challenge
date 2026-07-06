@@ -3,7 +3,10 @@ import { BehaviorSubject, fromEvent, Subscription } from 'rxjs';
 
 /**
  * Servicio encargado de monitorear el estado de conectividad de la aplicación.
- * Resuelve ADR-018 detectando cambios en window.online/offline.
+ * Se introdujo para solucionar falsos positivos de Firestore (ADR-018), ya que 
+ * Firestore maneja su propio estado interno offline/online silencioso.
+ * Este servicio alerta explícitamente al usuario cuando se corta la red física,
+ * evitando que la app parezca "colgada" durante operaciones de lectura/escritura.
  */
 @Injectable({
   providedIn: 'root'
