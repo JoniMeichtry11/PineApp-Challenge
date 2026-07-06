@@ -97,30 +97,30 @@
         <table mat-table [dataSource]="customers" class="mat-elevation-z2" *ngIf="customers.length > 0; else noResults">
           <!-- Columna Nombre -->
           <ng-container matColumnDef="nombre">
-            <th mat-header-cell *mat-header-cellDef> Nombre </th>
-            <td mat-cell *mat-cellDef="let customer"> {{ customer.nombre }} </td>
+            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+            <td mat-cell *matCellDef="let customer"> {{ customer.nombre }} </td>
           </ng-container>
 
           <!-- Columna Apellido -->
           <ng-container matColumnDef="apellido">
-            <th mat-header-cell *mat-header-cellDef> Apellido </th>
-            <td mat-cell *mat-cellDef="let customer"> {{ customer.apellido }} </td>
+            <th mat-header-cell *matHeaderCellDef> Apellido </th>
+            <td mat-cell *matCellDef="let customer"> {{ customer.apellido }} </td>
           </ng-container>
 
           <!-- Columna Edad -->
           <ng-container matColumnDef="edad">
-            <th mat-header-cell *mat-header-cellDef> Edad </th>
-            <td mat-cell *mat-cellDef="let customer"> {{ customer.edad }} años </td>
+            <th mat-header-cell *matHeaderCellDef> Edad </th>
+            <td mat-cell *matCellDef="let customer"> {{ customer.edad }} años </td>
           </ng-container>
 
           <!-- Columna Fecha de Nacimiento -->
           <ng-container matColumnDef="fechaNacimiento">
-            <th mat-header-cell *mat-header-cellDef> Fecha de Nacimiento </th>
-            <td mat-cell *mat-cellDef="let customer"> {{ customer.fechaNacimiento | fechaPersonalizada }} </td>
+            <th mat-header-cell *matHeaderCellDef> Fecha de Nacimiento </th>
+            <td mat-cell *matCellDef="let customer"> {{ customer.fechaNacimiento | fechaPersonalizada }} </td>
           </ng-container>
 
-          <tr mat-header-row *mat-header-rowDef="displayedColumns"></tr>
-          <tr mat-row *mat-rowDef="let row; columns: displayedColumns;"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
 
         <!-- Mensaje cuando no hay resultados (Requerimiento 3) -->

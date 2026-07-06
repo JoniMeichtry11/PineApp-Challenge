@@ -2,6 +2,8 @@
 
 Este proyecto es la resolución de la prueba técnica para **Frontend Developer** (Angular + Firebase). Consiste en un panel moderno y seguro para la administración, filtrado y cálculo de KPIs de clientes.
 
+**URL Pública (Producción):** [https://pinapp-challenge-app.web.app](https://pinapp-challenge-app.web.app)
+
 ---
 
 ## 🚀 Características Principales
