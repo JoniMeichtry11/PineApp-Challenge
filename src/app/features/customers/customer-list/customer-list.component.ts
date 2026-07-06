@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { combineLatest, Observable, of } from 'rxjs';
-import { map, startWith, catchError } from 'rxjs/operators';
+import { map, startWith, catchError, shareReplay } from 'rxjs/operators';
 import { CustomerService } from '../../../core/services/customer.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { StatisticsService } from '../../../core/services/statistics.service';
@@ -80,7 +80,8 @@ export class CustomerListComponent implements OnInit {
         console.error('Error al leer de Firestore:', err);
         this.snackBar.open('Error al conectar con Firestore. Reintentando...', 'Cerrar', { duration: 5000 });
         return of({ loading: false, error: true, data: [] as Customer[] });
-      })
+      }),
+      shareReplay(1)
     );
 
     // Derivamos el estado de carga de forma 100% reactiva (Fase 6)

@@ -263,6 +263,18 @@
 
 ---
 
+## ADR-019: Suscripción compartida a `customers$` (`shareReplay`)
+
+- **Contexto:** durante la verificación manual (checklist) se detectó que el listado de clientes aparecía vacío mientras el panel de KPIs, alimentado por el mismo origen de datos, sí mostraba valores correctos. El diagnóstico con logging reveló un error intermitente `FirebaseError: Missing or insufficient permissions` en una de las tres suscripciones activas al mismo stream (`kpis$`, `isLoading$`, `filteredCustomers$`), cada una disparando su propia consulta física a Firestore por tratarse de un observable frío.
+- **Causa raíz — nivel de certeza:** no se confirmó con total certeza el mecanismo exacto por el cual una suscripción tardía a la misma query devolvía `permission-denied` de forma intermitente (la hipótesis manejada fue una posible condición de carrera entre listeners duplicados y la inicialización del token de Auth, pero no se instrumentó al nivel de verificarlo de forma concluyente). Se optó conscientemente por no perseguir la causa exacta al 100%, dado que el fix aplicado resuelve el síntoma y es además la arquitectura correcta independientemente de la causa raíz puntual (ver justificación).
+- **Decisión:** aplicar `shareReplay(1)` sobre `customersState$` (el stream de origen), de forma que exista una única suscripción física real a Firestore, compartida entre todos los consumidores (`kpis$`, `isLoading$`, `filteredCustomers$`).
+- **Justificación (válida más allá de la causa raíz del bug):** tener múltiples suscripciones físicas independientes a la misma query de Firestore es un anti-patrón — multiplica listeners activos y lecturas facturables en un proyecto real, y no garantiza que todos los consumidores vean el mismo estado de los datos en el mismo instante. `shareReplay(1)` es el operador estándar de RxJS para este escenario: una sola fuente de verdad "caliente", compartida.
+- **Efecto colateral resuelto:** este fix también solucionó BUG-04 (snackbar de éxito del alta de cliente no visible) sin tocar `customer-form.component.ts` — el snackbar de error que se disparaba por el `permission-denied` intermitente en `customer-list` estaba reemplazando al snackbar de éxito (`MatSnackBar` solo muestra uno a la vez). Al eliminar el error, ambos bugs se resolvieron con el mismo cambio.
+- **Trade-off aceptado:** quedó una incógnita técnica no cerrada al 100% (el mecanismo exacto del `permission-denied` intermitente), documentada como tal en vez de presentarse como certeza.
+- **Cómo defenderlo:** "Detecté que tres partes de la UI se suscribían de forma independiente al mismo stream de Firestore, lo cual generaba listeners duplicados y un error intermitente de permisos en la suscripción más tardía. Apliqué `shareReplay(1)` para compartir una única suscripción — es la arquitectura correcta para un stream consumido por múltiples partes de la UI, más allá de que no verifiqué al 100% el mecanismo exacto del error original."
+
+---
+
 ## Decisiones pendientes / a definir durante el desarrollo
 
 - (vacío — el pendiente de Firestore Security Rules quedó resuelto en ADR-016)
@@ -293,4 +305,5 @@
 | 2026-07-04 | Agregado ADR-012 (estrategia de branching y commits) |
 | 2026-07-05 | Agregado ADR-013 (manejo de credenciales de Firebase) y nota pendiente sobre Firestore Security Rules |
 | 2026-07-05 | Agregado ADR-014 (cálculo de edad), ADR-015 (alcance de rutas protegidas) y ADR-016 (Firestore Security Rules, resuelve el pendiente de ADR-013) |
-| 2026-07-05 | Agregado ADR-017 (Fórmula de desviación estándar poblacional) |
+| 2026-07-05 | Agregado ADR-017 (fórmula de desviación estándar) y ADR-018 (manejo de conectividad offline, corrige el supuesto original de catchError de las Fases 4/6) |
+| 2026-07-05 | Agregado ADR-019 (shareReplay en customers$, resuelve BUG-01 y BUG-04 con el mismo fix) |
