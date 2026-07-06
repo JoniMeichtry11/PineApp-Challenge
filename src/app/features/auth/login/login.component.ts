@@ -70,12 +70,12 @@ export class LoginComponent {
   /** Traduce los códigos de error de Firebase Auth a mensajes legibles en español */
   private getErrorMessage(errorCode: string): string {
     const messages: Record<string, string> = {
-      'auth/user-not-found': 'No se encontró una cuenta con ese email.',
-      'auth/wrong-password': 'La contraseña ingresada es incorrecta.',
+      'auth/user-not-found': 'Email o contraseña incorrectos.',
+      'auth/wrong-password': 'Email o contraseña incorrectos.',
+      'auth/invalid-credential': 'Email o contraseña incorrectos.',
       'auth/invalid-email': 'El formato del email no es válido.',
       'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.',
-      'auth/too-many-requests': 'Demasiados intentos fallidos. Intentá de nuevo más tarde.',
-      'auth/invalid-credential': 'Las credenciales ingresadas no son válidas.'
+      'auth/too-many-requests': 'Demasiados intentos fallidos. Intentá de nuevo más tarde.'
     };
     return messages[errorCode] || 'Ocurrió un error inesperado al iniciar sesión.';
   }
