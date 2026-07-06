@@ -12,7 +12,9 @@ import { AuthService } from '../../../core/services/auth.service';
 
 /**
  * Componente de login con email y contraseña.
- * Conectado a Firebase Auth a través de AuthService (ADR-009).
+ * Actúa como única barrera de entrada al sistema. Su responsabilidad principal es
+ * orquestar la UI de autenticación y gestionar errores de forma genérica para no filtrar
+ * información sensible (ej: evitar enumeración de usuarios).
  */
 @Component({
   selector: 'app-login',
@@ -67,7 +69,12 @@ export class LoginComponent {
     }
   }
 
-  /** Traduce los códigos de error de Firebase Auth a mensajes legibles en español */
+  /** 
+   * Traduce los códigos de error internos de Firebase Auth a mensajes de UI seguros.
+   * Por razones de seguridad (BUG-03), los errores de credenciales inválidas o
+   * usuario no encontrado se mapean al mismo mensaje genérico para mitigar
+   * ataques de fuerza bruta o enumeración de emails.
+   */
   private getErrorMessage(errorCode: string): string {
     const messages: Record<string, string> = {
       'auth/user-not-found': 'Email o contraseña incorrectos.',

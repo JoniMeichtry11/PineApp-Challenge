@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 
+/** Array principal de enrutamiento que define la navegación y protege las rutas mediante AuthGuard. */
 export const routes: Routes = [
   {
     path: 'login',

@@ -23,7 +23,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 /**
  * Componente que muestra el listado de clientes.
- * Implementa filtrado y ordenamiento reactivo en el cliente mediante combineLatest (ADR-007).
+ * La arquitectura de este componente se basa en observables derivados para separar la lectura 
+ * de la base de datos de la lógica de filtrado en memoria, reduciendo lecturas a Firestore.
  */
 @Component({
   selector: 'app-customer-list',
@@ -48,10 +49,23 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrls: ['./customer-list.component.css']
 })
 export class CustomerListComponent implements OnInit {
+  /** Formulario reactivo para manejar los criterios de búsqueda (nombre, apellido, rango de edad). */
   filterForm!: FormGroup;
+
+  /** 
+   * Flujo reactivo final que emite la lista de clientes a renderizar. 
+   * Se deriva de combinar el estado de la base de datos con los valores actuales del formulario,
+   * permitiendo filtrado instantáneo en el cliente sin re-consultar Firestore.
+   */
   filteredCustomers$!: Observable<Customer[]>;
+
+  /** Flujo reactivo que calcula métricas poblacionales (promedio y desviación estándar) sobre la lista sin filtrar. */
   kpis$!: Observable<{ average: number; stdDev: number; total: number }>;
+
+  /** Indicador reactivo que refleja si la petición inicial a Firestore está en curso. */
   isLoading$!: Observable<boolean>;
+
+  /** Definición de las columnas visibles en la tabla de Angular Material. */
   displayedColumns: string[] = ['nombre', 'apellido', 'edad', 'fechaNacimiento'];
 
   constructor(
@@ -72,7 +86,14 @@ export class CustomerListComponent implements OnInit {
       sortDirection: ['asc'] // Dirección por defecto
     });
 
-    // Flujo reactivo del estado de los clientes (cargando, error, datos)
+    /**
+     * customersState$ encapsula la petición a Firestore.
+     * Se aplica shareReplay(1) porque este mismo flujo es consumido por múltiples
+     * observables derivados (filteredCustomers$, kpis$, isLoading$).
+     * Sin shareReplay, cada pipe asíncrono en el HTML y cada combineLatest dispararía
+     * una suscripción independiente, causando pérdida de datos, race conditions y 
+     * errores de permisos en Firebase por exceso de lecturas concurrentes (ADR-019).
+     */
     const customersState$ = this.customerService.getCustomers().pipe(
       map(data => ({ loading: false, error: false, data })),
       startWith({ loading: true, error: false, data: [] as Customer[] }),
