@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "pinapp": "pinapp---challenge"
+  },
+  "targets": {
+    "pinapp---challenge": {
+      "hosting": {
+        "app": [
+          "pinapp-challenge-app"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
